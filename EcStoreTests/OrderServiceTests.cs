@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EcStoreLib;
 using NSubstitute;
 using Xunit;
@@ -8,23 +9,39 @@ namespace EcStoreTests
 {
     public class OrderServiceTests
     {
+        private readonly FakeOrderService _orderService = new FakeOrderService();
+        private IBookDao _bookDao = Substitute.For<IBookDao>();
+
+        
         [Fact]
         public void sync_book_orders_when_2_book_orders_of_3_orders()
         {
 //            var orderService = new OrderService();
-            var orderService = new FakeOrderService();
-            orderService.SetOrders(new List<Order>
-            {
-                new Order() {Type = "Book"},
-                new Order() {Type = "CD"},
-                new Order() {Type = "Book"},
-            });
+            GivenOrders(
+                CreateOrder("Book"),
+                CreateOrder("CD"),
+                CreateOrder("Book")
+            );
 
-            var bookDao = Substitute.For<IBookDao>();
-            orderService.SetBookDao(bookDao);
-            orderService.SyncBookOrders();
+            InitOrderService();
+            _orderService.SyncBookOrders();
 
-            bookDao.Received(2).Insert(Arg.Is<Order>(o => o.Type == "Book"));
+            _bookDao.Received(2).Insert(Arg.Is<Order>(o => o.Type == "Book"));
+        }
+
+        private void InitOrderService()
+        {
+            _orderService.SetBookDao(_bookDao);
+        }
+
+        private static Order CreateOrder(string type)
+        {
+            return new Order() {Type = type};
+        }
+
+        private void GivenOrders(params Order[] orders)
+        {
+            _orderService.SetOrders(orders.ToList());
         }
     }
 
