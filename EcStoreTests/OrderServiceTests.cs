@@ -9,6 +9,7 @@ namespace EcStoreTests
 {
     public class OrderServiceTests
     {
+//            var orderService = new OrderService();
         private readonly FakeOrderService _orderService = new FakeOrderService();
         private IBookDao _bookDao = Substitute.For<IBookDao>();
 
@@ -16,17 +17,22 @@ namespace EcStoreTests
         [Fact]
         public void sync_book_orders_when_2_book_orders_of_3_orders()
         {
-//            var orderService = new OrderService();
+            InitOrderService();
+            
             GivenOrders(
-                CreateOrder("Book"),
-                CreateOrder("CD"),
-                CreateOrder("Book")
+                CreateOrder(type: "Book"),
+                CreateOrder(type: "CD"),
+                CreateOrder(type: "Book")
             );
 
-            InitOrderService();
             _orderService.SyncBookOrders();
 
-            _bookDao.Received(2).Insert(Arg.Is<Order>(o => o.Type == "Book"));
+            BookDaoShouldInsertTimes(times: 2);
+        }
+
+        private void BookDaoShouldInsertTimes(int times)
+        {
+            _bookDao.Received(times).Insert(Arg.Is<Order>(o => o.Type == "Book"));
         }
 
         private void InitOrderService()
