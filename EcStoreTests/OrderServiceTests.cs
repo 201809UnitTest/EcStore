@@ -13,12 +13,12 @@ namespace EcStoreTests
         private readonly FakeOrderService _orderService = new FakeOrderService();
         private IBookDao _bookDao = Substitute.For<IBookDao>();
 
-        
+
         [Fact]
         public void sync_book_orders_when_2_book_orders_of_3_orders()
         {
             InitOrderService();
-            
+
             GivenOrders(
                 CreateOrder(type: "Book"),
                 CreateOrder(type: "CD"),
